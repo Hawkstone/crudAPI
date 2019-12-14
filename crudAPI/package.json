@@ -1,0 +1,9 @@
+{
+  "name": "crud-api",
+  "version": "0.0.0",
+  "description": "crudAPI",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  }
+}
