@@ -1,9 +1,9 @@
 {
   "name": "crud-api",
-  "version": "0.0.0",
-  "description": "crudAPI",
+  "version": "1.0.0",
+  "description": "Access MySQL and provide CRUD operations",
   "main": "server.js",
   "author": {
-    "name": ""
+    "name": "Mark Griffiths"
   }
 }
