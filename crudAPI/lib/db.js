@@ -1,3 +1,4 @@
+// return a dbConn oject connected to mySQL iot database
 var mysql = require('mysql');
 var dbConn = mysql.createConnection({
     host: 'localhost',
@@ -9,7 +10,7 @@ dbConn.connect(function (error) {
     if (!!error) {
         console.log(error);
     } else {
-        console.log('Connected!:)');
+        console.log('Connected!');
     }
 });
 module.exports = dbConn; 
