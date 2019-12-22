@@ -68,31 +68,21 @@ app.get('/listArduino/:id', function (req, res) {
 // Add a new user  
 app.post('/user', function (req, res) {
     let user = req.body;
-    //console.log("req.body: " + req.body);
-    //console.log("req.body.body: " + req.body.body);
-    //console.log("req.body.bodyParser: " + req.body.bodyParser);
-    //console.log("req.param: " + req.param);
-    //console.log("req.param.email: " + req.param.email);
-    //console.log("req.rawTrailers: " + req.rawTrailers);
-    //console.log("req.bodyParser.body: " + req.bodyParser.body);
-    //console.log("req.bodyParser.json: " + req.bodyParser.json);
     if (!user) {
         return res.status(400).send({ error: true, message: 'Please provide new user data' });
     }
-    dbConn.query("INSERT INTO users SET ?", { user: user }, function (error, results, fields) {
+    dbConn.query("INSERT INTO users SET " +
+        "email = '" + user.email + "'," +
+        "password = '" + user.password + "'," +
+        "firstName = '" + user.firstName + "'," +
+        "lastName = '" + user.lastName + "'," +
+        "permissionLevel = '" + user.permissionLevel + "'"
+        , { user }, function (error, results, fields) {
         if (error) throw error;
         return res.send({ error: false, data: results, message: 'New user has been created.' });
-    });
+        });
+    console.log("User created: \n", user);
 });
-
-// Add Arduino setting
-app.post('/userNew', function (req, res) {
-    dbConn.query("INSERT INTO arduino SET userID = 1, valueName = 'heat', valueString = 'on'", {}, function (error, results, fields) {
-        if (error) throw error;
-        return res.send({ error: false, data: results, message: 'New Arduino setting has been created.' });
-    });
-});
-
 
 //  Update user with id
 app.put('/user', function (req, res) {
