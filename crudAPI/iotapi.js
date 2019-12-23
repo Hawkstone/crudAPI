@@ -85,26 +85,37 @@ app.post('/user', function (req, res) {
 });
 
 //  Update user with id
-app.put('/user', function (req, res) {
-    let user_id = req.body.user_id;
-    let user = req.body.user;
+app.put('/user/:user_id', function (req, res) {
+    let user = req.body;
+    let user_id = req.params.user_id
+    console.log("User: ", user);
+    console.log("User to update: ", user_id);
     if (!user_id || !user) {
         return res.status(400).send({ error: user, message: 'Please provide user and user_id' });
     }
-    dbConn.query("UPDATE users SET user = ? WHERE id = ?", [user, user_id], function (error, results, fields) {
-        if (error) throw error;
-        return res.send({ error: false, data: results, message: 'user has been updated.' });
-    });
+    dbConn.query("UPDATE users SET " +
+        "email = '" + user.email + "'," +
+        "password = '" + user.password + "'," +
+        "firstName = '" + user.firstName + "'," +
+        "lastName = '" + user.lastName + "'," +
+        "permissionLevel = '" + user.permissionLevel + "' " +
+        "WHERE id = ? "
+        , [user_id], function (error, results, fields) {
+            if (error) throw error;
+            return res.send({ error: false, data: results, message: 'user' + user_id + ' has been updated.' });
+        });
+    console.log("User updated: \n", user);
 });
 
 //  Delete user
-app.delete('/user', function (req, res) {
-    let user_id = req.body.user_id;
+app.delete('/user/:user_id', function (req, res) {
+    let user_id = req.params.user_id;
+    console.log("User to delete: ", user_id);
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user_id for delete' });
     }
     dbConn.query('DELETE FROM users WHERE id = ?', [user_id], function (error, results, fields) {
         if (error) throw error;
-        return res.send({ error: false, data: results, message: 'User has been deleted.' });
+        return res.send({ error: false, data: results, message: 'User ' + user_id + ' has been deleted.' });
     });
 }); 
