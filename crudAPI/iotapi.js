@@ -22,11 +22,36 @@ module.exports = app;
 var dbConn = require('./lib/db');
 
 
+//-------------------------------------------------------------------------------------------------------------------------------------
+// send an SQL query and return the result
+app.get('/query/:query', function (req, res) {
+    let sql = req.params.query;
+    console.log("query: " + sql);
+    dbConn.query(sql, function (error, result) {
+        if (error) throw error;
+        return res.send({ error: false, data: result, message: 'query result' });
+    });
+});
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+// get the password for the given email address
+app.get('/getPassword/:email', function (req, res) {
+    let email = req.params.email;
+    dbConn.query("SELECT password FROM users WHERE email = '" + email + "'", function (error, result) {
+        if (error) throw error;
+        console.log("result: ", result);
+        return res.send({ error: false, data: result, message: 'users list' });
+    });
+});
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------
 // Retrieve all users 
 app.get('/listUsers', function (req, res) {
-    dbConn.query('SELECT * FROM users', function (error, results, fields) {
+    dbConn.query('SELECT * FROM users', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: results, message: 'users list' });
+        return res.send({ error: false, data: result, message: 'users list' });
     });
 });
 
@@ -36,18 +61,17 @@ app.get('/listUser/:id', function (req, res) {
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user id' });
     }
-    dbConn.query('SELECT * FROM users WHERE id=?', user_id, function (error, results, fields) {
+    dbConn.query('SELECT * FROM users WHERE id=?', user_id, function (error, result, fields) {
         if (error) throw error;
-        return res.send({ error: false, data: results[0], message: 'user record' });
+        return res.send({ error: false, data: result[0], message: 'user record' });
     });
 });
 
-
 // Retrieve arduino table values for all users
 app.get('/listArduino', function (req, res) {
-    dbConn.query('SELECT * FROM arduino', function (error, results, fields) {
+    dbConn.query('SELECT * FROM arduino', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: results, message: 'arduino table list' });
+        return res.send({ error: false, data: result, message: 'arduino table list' });
     });
 });
 
@@ -57,15 +81,15 @@ app.get('/listArduino/:id', function (req, res) {
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user id' });
     }
-    dbConn.query('SELECT * FROM arduino WHERE userID=?', user_id, function (error, results, fields) {
+    dbConn.query('SELECT * FROM arduino WHERE userID=?', user_id, function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: results[0], message: 'arduino user values' });
+        return res.send({ error: false, data: result[0], message: 'arduino user values' });
     });
 });
 
 
-
-// Add a new user  
+//-------------------------------------------------------------------------------------------------------------------------------------
+// Add a new user from request BODY 
 app.post('/user', function (req, res) {
     let user = req.body;
     if (!user) {
@@ -77,19 +101,22 @@ app.post('/user', function (req, res) {
         "firstName = '" + user.firstName + "'," +
         "lastName = '" + user.lastName + "'," +
         "permissionLevel = '" + user.permissionLevel + "'"
-        , { user }, function (error, results, fields) {
-        if (error) throw error;
-        return res.send({ error: false, data: results, message: 'New user has been created.' });
+        , { user }, function (error, result) {
+            if (error) throw error;
+            console.log("Number of rows affected: " + result.affectedRows);
+            console.log("Number of records affected with warning: " + result.warningCount);
+            console.log("Message from MySQL Server: " + result.message);
+            return res.send({ error: false, data: result, message: 'New user has been created.' });
         });
-    console.log("User created: \n", user);
+    //console.log("User created: \n", user);
 });
 
 //  Update user with id
 app.put('/user/:user_id', function (req, res) {
     let user = req.body;
     let user_id = req.params.user_id
-    console.log("User: ", user);
     console.log("User to update: ", user_id);
+    console.log("User: ", user);
     if (!user_id || !user) {
         return res.status(400).send({ error: user, message: 'Please provide user and user_id' });
     }
@@ -100,11 +127,14 @@ app.put('/user/:user_id', function (req, res) {
         "lastName = '" + user.lastName + "'," +
         "permissionLevel = '" + user.permissionLevel + "' " +
         "WHERE id = ? "
-        , [user_id], function (error, results, fields) {
+        , [user_id], function (error, result, fields) {
             if (error) throw error;
-            return res.send({ error: false, data: results, message: 'user' + user_id + ' has been updated.' });
+            console.log("Number of rows affected: " + result.affectedRows);
+            console.log("Number of records affected with warning: " + result.warningCount);
+            console.log("Message from MySQL Server: " + result.message);
+            return res.send({ error: false, data: result, message: 'user ' + user_id + ' has been updated.' });
         });
-    console.log("User updated: \n", user);
+    //console.log("User updated: \n", user);
 });
 
 //  Delete user
@@ -114,8 +144,11 @@ app.delete('/user/:user_id', function (req, res) {
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user_id for delete' });
     }
-    dbConn.query('DELETE FROM users WHERE id = ?', [user_id], function (error, results, fields) {
+    dbConn.query('DELETE FROM users WHERE id = ?', [user_id], function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: results, message: 'User ' + user_id + ' has been deleted.' });
+        console.log("Number of rows affected: " + result.affectedRows);
+        console.log("Number of records affected with warning: " + result.warningCount);
+        console.log("Message from MySQL Server: " + result.message);
+        return res.send({ error: false, data: result, message: 'user ' + user_id + ' has been deleted.' });
     });
 }); 

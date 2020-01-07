@@ -6,6 +6,7 @@ var dbConn = mysql.createConnection({
     password: 'redLion45',
     database: 'iot'
 });
+
 dbConn.connect(function (error) {
     if (!!error) {
         console.log(error);
