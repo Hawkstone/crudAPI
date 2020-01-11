@@ -29,7 +29,8 @@ app.get('/query/:query', function (req, res) {
     console.log("query: " + sql);
     dbConn.query(sql, function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: result, message: 'query result' });
+        console.log("result: ", result);
+        return res.send({ error: false, data: JSON.stringify(result), message: 'query result' });
     });
 });
 
@@ -38,12 +39,25 @@ app.get('/query/:query', function (req, res) {
 // get the password for the given email address
 app.get('/getPassword/:email', function (req, res) {
     let email = req.params.email;
-    dbConn.query("SELECT password FROM users WHERE email = '" + email + "'", function (error, result) {
+    dbConn.query("SELECT password FROM users WHERE email = ?", [email], function (error, result) {
         if (error) throw error;
         console.log("result: ", result);
-        return res.send({ error: false, data: result, message: 'users list' });
+
+        var password = "";
+        Object.keys(result).forEach(function (key) {
+            var row = result[key];
+            password = row.password;
+        });
+
+        //function Password() {
+        //    this.password = result[0].fields("password");
+        //}
+        //var instance = new Password();
+        
+        return res.send({ error: false, data: JSON.stringify(password), message: 'user password' });
     });
 });
+
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -51,7 +65,7 @@ app.get('/getPassword/:email', function (req, res) {
 app.get('/listUsers', function (req, res) {
     dbConn.query('SELECT * FROM users', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: result, message: 'users list' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'users list' });
     });
 });
 
@@ -63,7 +77,7 @@ app.get('/listUser/:id', function (req, res) {
     }
     dbConn.query('SELECT * FROM users WHERE id=?', user_id, function (error, result, fields) {
         if (error) throw error;
-        return res.send({ error: false, data: result[0], message: 'user record' });
+        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
     });
 });
 
@@ -71,7 +85,7 @@ app.get('/listUser/:id', function (req, res) {
 app.get('/listArduino', function (req, res) {
     dbConn.query('SELECT * FROM arduino', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: result, message: 'arduino table list' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino table list' });
     });
 });
 
@@ -81,9 +95,9 @@ app.get('/listArduino/:id', function (req, res) {
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user id' });
     }
-    dbConn.query('SELECT * FROM arduino WHERE userID=?', user_id, function (error, result) {
+    dbConn.query('SELECT * FROM arduino WHERE userID = ?', user_id, function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: result[0], message: 'arduino user values' });
+        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'arduino user values' });
     });
 });
 
@@ -100,13 +114,13 @@ app.post('/user', function (req, res) {
         "password = '" + user.password + "'," +
         "firstName = '" + user.firstName + "'," +
         "lastName = '" + user.lastName + "'," +
-        "permissionLevel = '" + user.permissionLevel + "'"
+        "permissionLevel = " + user.permissionLevel 
         , { user }, function (error, result) {
             if (error) throw error;
             console.log("Number of rows affected: " + result.affectedRows);
             console.log("Number of records affected with warning: " + result.warningCount);
             console.log("Message from MySQL Server: " + result.message);
-            return res.send({ error: false, data: result, message: 'New user has been created.' });
+            return res.send({ error: false, data: JSON.stringify(result), message: 'New user has been created.' });
         });
     //console.log("User created: \n", user);
 });
@@ -125,14 +139,14 @@ app.put('/user/:user_id', function (req, res) {
         "password = '" + user.password + "'," +
         "firstName = '" + user.firstName + "'," +
         "lastName = '" + user.lastName + "'," +
-        "permissionLevel = '" + user.permissionLevel + "' " +
+        "permissionLevel = " + user.permissionLevel + 
         "WHERE id = ? "
         , [user_id], function (error, result, fields) {
             if (error) throw error;
             console.log("Number of rows affected: " + result.affectedRows);
             console.log("Number of records affected with warning: " + result.warningCount);
             console.log("Message from MySQL Server: " + result.message);
-            return res.send({ error: false, data: result, message: 'user ' + user_id + ' has been updated.' });
+            return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been updated.' });
         });
     //console.log("User updated: \n", user);
 });
@@ -149,6 +163,6 @@ app.delete('/user/:user_id', function (req, res) {
         console.log("Number of rows affected: " + result.affectedRows);
         console.log("Number of records affected with warning: " + result.warningCount);
         console.log("Message from MySQL Server: " + result.message);
-        return res.send({ error: false, data: result, message: 'user ' + user_id + ' has been deleted.' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been deleted.' });
     });
 }); 
