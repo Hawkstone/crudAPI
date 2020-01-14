@@ -22,7 +22,6 @@ module.exports = app;
 var dbConn = require('./lib/db');
 
 
-//-------------------------------------------------------------------------------------------------------------------------------------
 // send an SQL query and return the result
 app.get('/query/:query', function (req, res) {
     let sql = req.params.query;
@@ -35,7 +34,7 @@ app.get('/query/:query', function (req, res) {
 });
 
 
-//-------------------------------------------------------------------------------------------------------------------------------------
+//-[GET datapoint]---------------------------------------------------------------------------------------------------------------------
 // get the password for the given email address
 app.get('/getPassword/:email', function (req, res) {
     let email = req.params.email;
@@ -49,18 +48,13 @@ app.get('/getPassword/:email', function (req, res) {
             password = row.password;
         });
 
-        //function Password() {
-        //    this.password = result[0].fields("password");
-        //}
-        //var instance = new Password();
-        
-        return res.send({ error: false, data: JSON.stringify(password), message: 'user password' });
+        return res.send({ error: false, data: password, message: 'user password' });
     });
 });
 
 
 
-//-------------------------------------------------------------------------------------------------------------------------------------
+//-[GET dataset]-----------------------------------------------------------------------------------------------------------------------
 // Retrieve all users 
 app.get('/listUsers', function (req, res) {
     dbConn.query('SELECT * FROM users', function (error, result) {
@@ -75,7 +69,7 @@ app.get('/listUser/:id', function (req, res) {
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user id' });
     }
-    dbConn.query('SELECT * FROM users WHERE id=?', user_id, function (error, result, fields) {
+    dbConn.query('SELECT * FROM users WHERE id = ?', user_id, function (error, result, fields) {
         if (error) throw error;
         return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
     });
@@ -85,7 +79,7 @@ app.get('/listUser/:id', function (req, res) {
 app.get('/listArduino', function (req, res) {
     dbConn.query('SELECT * FROM arduino', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino table list' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino all user values list' });
     });
 });
 
@@ -97,7 +91,7 @@ app.get('/listArduino/:id', function (req, res) {
     }
     dbConn.query('SELECT * FROM arduino WHERE userID = ?', user_id, function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'arduino user values' });
+        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'arduino single user values' });
     });
 });
 
