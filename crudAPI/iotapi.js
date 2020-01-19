@@ -52,6 +52,22 @@ app.get('/getPassword/:email', function (req, res) {
     });
 });
 
+// get the userID for the given email address
+app.get('/getUserID/:email', function (req, res) {
+    let email = req.params.email;
+    dbConn.query("SELECT id FROM users WHERE email = ?", [email], function (error, result) {
+        if (error) throw error;
+        console.log("result: ", result);
+
+        var id = -1;
+        Object.keys(result).forEach(function (key) {
+            var row = result[key];
+            id = row.id;
+        });
+
+        return res.send({ error: false, data: id, message: 'user record id' });
+    });
+});
 
 
 //-[GET dataset]-----------------------------------------------------------------------------------------------------------------------
@@ -64,19 +80,37 @@ app.get('/listUsers', function (req, res) {
 });
 
 // Retrieve user with id 
-app.get('/listUser/:id', function (req, res) {
+app.get('/getUserRecordByID/:id', function (req, res) {
     let user_id = req.params.id;
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user id' });
     }
-    dbConn.query('SELECT * FROM users WHERE id = ?', user_id, function (error, result, fields) {
+    dbConn.query('SELECT * FROM users WHERE id = ?', user_id, function (error, result) {
         if (error) throw error;
+
+        console.log("result: ", result);
+
+        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
+    });
+});
+
+// Retrieve user with email 
+app.get('/getUserRecordByEmail/:email', function (req, res) {
+    let email = req.params.email;
+    if (!email) {
+        return res.status(400).send({ error: true, message: 'Please provide user email address' });
+    }
+    dbConn.query('SELECT * FROM users WHERE email = ?', email, function (error, result) {
+        if (error) throw error;
+
+        console.log("result: ", result);
+
         return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
     });
 });
 
 // Retrieve arduino table values for all users
-app.get('/listArduino', function (req, res) {
+app.get('/listArduinoAll', function (req, res) {
     dbConn.query('SELECT * FROM arduino', function (error, result) {
         if (error) throw error;
         return res.send({ error: false, data: JSON.stringify(result), message: 'arduino all user values list' });
@@ -91,6 +125,9 @@ app.get('/listArduino/:id', function (req, res) {
     }
     dbConn.query('SELECT * FROM arduino WHERE userID = ?', user_id, function (error, result) {
         if (error) throw error;
+
+        console.log("result: ", result);
+
         return res.send({ error: false, data: JSON.stringify(result[0]), message: 'arduino single user values' });
     });
 });
