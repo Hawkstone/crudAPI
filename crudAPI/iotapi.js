@@ -128,7 +128,7 @@ app.get('/listArduino/:id', function (req, res) {
 
         console.log("result: ", result);
 
-        return res.send({ error: false, data: JSON.stringify(result[0]), message: 'arduino single user values' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino single user values' });
     });
 });
 
@@ -137,6 +137,9 @@ app.get('/listArduino/:id', function (req, res) {
 // Add a new user from request BODY 
 app.post('/user', function (req, res) {
     let user = req.body;
+
+    console.log("New user: ", user);
+
     if (!user) {
         return res.status(400).send({ error: true, message: 'Please provide new user data' });
     }
@@ -160,32 +163,36 @@ app.post('/user', function (req, res) {
 app.put('/user/:user_id', function (req, res) {
     let user = req.body;
     let user_id = req.params.user_id
-    console.log("User to update: ", user_id);
-    console.log("User: ", user);
+
+    console.log("User ID to update: ", user_id);
+    console.log("Updated details: ", user);
+
     if (!user_id || !user) {
-        return res.status(400).send({ error: user, message: 'Please provide user and user_id' });
+        return res.status(400).send({ error: user, message: 'Please provide user_id and BODY updated fields' });
     }
+
     dbConn.query("UPDATE users SET " +
         "email = '" + user.email + "'," +
         "password = '" + user.password + "'," +
         "firstName = '" + user.firstName + "'," +
         "lastName = '" + user.lastName + "'," +
-        "permissionLevel = " + user.permissionLevel + 
+        "permissionLevel = " + user.permissionLevel + " " +
         "WHERE id = ? "
-        , [user_id], function (error, result, fields) {
+        , [user_id], function (error, result) {
             if (error) throw error;
             console.log("Number of rows affected: " + result.affectedRows);
             console.log("Number of records affected with warning: " + result.warningCount);
             console.log("Message from MySQL Server: " + result.message);
             return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been updated.' });
         });
-    //console.log("User updated: \n", user);
 });
 
 //  Delete user
 app.delete('/user/:user_id', function (req, res) {
     let user_id = req.params.user_id;
+
     console.log("User to delete: ", user_id);
+
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user_id for delete' });
     }
@@ -197,3 +204,29 @@ app.delete('/user/:user_id', function (req, res) {
         return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been deleted.' });
     });
 }); 
+
+//  Update arduino paramater
+app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
+    let record = req.body;
+    let recID = req.params.arduinoRecordID;
+
+    console.log("Arduino record to update: ", recID);
+    console.log("Updated details: ", record);
+
+    if (!recID || !record) {
+        return res.status(400).send({ error: record, message: 'Please provide arduino.id and BODY updated fields' });
+    }
+    dbConn.query("UPDATE arduino SET " +
+        "valueInt = " + record.valueInt + ", " +
+        "valueString = '" + record.valueString + "' " +
+        "WHERE id = ? "
+        , [recID], function (error, result) {
+            if (error) throw error;
+            console.log("Number of rows affected: " + result.affectedRows);
+            console.log("Number of records affected with warning: " + result.warningCount);
+            console.log("Message from MySQL Server: " + result.message);
+            return res.send({ error: false, data: JSON.stringify(result), message: 'arduino parameter ID: ' + recID + ' has been updated.' });
+        });
+});
+
+
