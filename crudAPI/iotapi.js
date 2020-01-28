@@ -5,13 +5,13 @@ var mysql = require('mysql');
 const port = 3000;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
+
 // default route
 app.get('/', function (req, res) {
     return res.send({ error: true, message: 'hello' })
 });
+
 // set port
 app.listen(port, function () {
     console.log('Node iotapi is running on port ' + port);
@@ -144,11 +144,11 @@ app.post('/user', function (req, res) {
         return res.status(400).send({ error: true, message: 'Please provide new user data' });
     }
     dbConn.query("INSERT INTO users SET " +
-        "email = '" + user.email + "'," +
-        "password = '" + user.password + "'," +
-        "firstName = '" + user.firstName + "'," +
-        "lastName = '" + user.lastName + "'," +
-        "permissionLevel = " + user.permissionLevel 
+        "email = '" + user.Email + "'," +
+        "password = '" + user.Password + "'," +
+        "firstName = '" + user.FirstName + "'," +
+        "lastName = '" + user.LastName + "'," +
+        "permissionLevel = " + user.PermissionLevel 
         , { user }, function (error, result) {
             if (error) throw error;
             console.log("Number of rows affected: " + result.affectedRows);
@@ -172,11 +172,11 @@ app.put('/user/:user_id', function (req, res) {
     }
 
     dbConn.query("UPDATE users SET " +
-        "email = '" + user.email + "'," +
-        "password = '" + user.password + "'," +
-        "firstName = '" + user.firstName + "'," +
-        "lastName = '" + user.lastName + "'," +
-        "permissionLevel = " + user.permissionLevel + " " +
+        "email = '" + user.Email + "'," +
+        "password = '" + user.Password + "'," +
+        "firstName = '" + user.FirstName + "'," +
+        "lastName = '" + user.LastName + "'," +
+        "permissionLevel = " + user.PermissionLevel + " " +
         "WHERE id = ? "
         , [user_id], function (error, result) {
             if (error) throw error;
@@ -210,15 +210,18 @@ app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
     let record = req.body;
     let recID = req.params.arduinoRecordID;
 
+    console.log("--");
     console.log("Arduino record to update: ", recID);
     console.log("Updated details: ", record);
-
+    
     if (!recID || !record) {
         return res.status(400).send({ error: record, message: 'Please provide arduino.id and BODY updated fields' });
     }
+
+    // CAPITALISATION - pay attention to case of properties (record.ValueInt is NOT the same as record.valueInt)
     dbConn.query("UPDATE arduino SET " +
-        "valueInt = " + record.valueInt + ", " +
-        "valueString = '" + record.valueString + "' " +
+        "valueInt = " + record.ValueInt + ", " +
+        "valueString = '" + record.ValueString + "' " +
         "WHERE id = ? "
         , [recID], function (error, result) {
             if (error) throw error;
