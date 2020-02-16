@@ -22,13 +22,15 @@ module.exports = app;
 var dbConn = require('./lib/db');
 
 
+
+
 // send an SQL query and return the result
 app.get('/query/:query', function (req, res) {
     let sql = req.params.query;
     console.log("query: " + sql);
     dbConn.query(sql, function (error, result) {
         if (error) throw error;
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
         return res.send({ error: false, data: JSON.stringify(result), message: 'query result' });
     });
 });
@@ -40,7 +42,7 @@ app.get('/getPassword/:email', function (req, res) {
     let email = req.params.email;
     dbConn.query("SELECT password FROM users WHERE email = ?", [email], function (error, result) {
         if (error) throw error;
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
 
         var password = "";
         Object.keys(result).forEach(function (key) {
@@ -57,7 +59,7 @@ app.get('/getUserID/:email', function (req, res) {
     let email = req.params.email;
     dbConn.query("SELECT id FROM users WHERE email = ?", [email], function (error, result) {
         if (error) throw error;
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
 
         var id = -1;
         Object.keys(result).forEach(function (key) {
@@ -88,7 +90,7 @@ app.get('/getUserRecordByID/:id', function (req, res) {
     dbConn.query('SELECT * FROM users WHERE id = ?', user_id, function (error, result) {
         if (error) throw error;
 
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
 
         return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
     });
@@ -103,7 +105,7 @@ app.get('/getUserRecordByEmail/:email', function (req, res) {
     dbConn.query('SELECT * FROM users WHERE email = ?', email, function (error, result) {
         if (error) throw error;
 
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
 
         return res.send({ error: false, data: JSON.stringify(result[0]), message: 'user record' });
     });
@@ -126,7 +128,7 @@ app.get('/listArduino/:id', function (req, res) {
     dbConn.query('SELECT * FROM arduino WHERE userID = ?', user_id, function (error, result) {
         if (error) throw error;
 
-        console.log("result: ", result);
+        console.log(GetDateTime() + " result: ", result);
 
         return res.send({ error: false, data: JSON.stringify(result), message: 'arduino single user values' });
     });
@@ -138,7 +140,7 @@ app.get('/listArduino/:id', function (req, res) {
 app.post('/user', function (req, res) {
     let user = req.body;
 
-    console.log("New user: ", user);
+    console.log(GetDateTime() + " New user: ", user);
 
     if (!user) {
         return res.status(400).send({ error: true, message: 'Please provide new user data' });
@@ -164,7 +166,7 @@ app.put('/user/:user_id', function (req, res) {
     let user = req.body;
     let user_id = req.params.user_id
 
-    console.log("User ID to update: ", user_id);
+    console.log(GetDateTime() + " User ID to update: ", user_id);
     console.log("Updated details: ", user);
 
     if (!user_id || !user) {
@@ -191,7 +193,7 @@ app.put('/user/:user_id', function (req, res) {
 app.delete('/user/:user_id', function (req, res) {
     let user_id = req.params.user_id;
 
-    console.log("User to delete: ", user_id);
+    console.log(GetDateTime() + " User to delete: ", user_id);
 
     if (!user_id) {
         return res.status(400).send({ error: true, message: 'Please provide user_id for delete' });
@@ -211,7 +213,7 @@ app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
     let recID = req.params.arduinoRecordID;
 
     console.log("--");
-    console.log("Arduino record to update: ", recID);
+    console.log(GetDateTime() + " Arduino record to update: ", recID);
     console.log("Updated details: ", record);
     
     if (!recID || !record) {
@@ -232,4 +234,24 @@ app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
         });
 });
 
+
+function GetDateTime() {
+    let date_ob = new Date();
+
+    // current date
+    // adjust 0 before single digit date
+    let date = ("0" + date_ob.getDate()).slice(-2);
+    // current month
+    let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+    // current year
+    let year = date_ob.getFullYear();
+    // current hours
+    let hours = date_ob.getHours();
+    // current minutes
+    let minutes = date_ob.getMinutes();
+    // current seconds
+    let seconds = date_ob.getSeconds();
+
+    return year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+}
 
