@@ -115,7 +115,7 @@ app.get('/getUserRecordByEmail/:email', function (req, res) {
 app.get('/listArduinoAll', function (req, res) {
     dbConn.query('SELECT * FROM arduino', function (error, result) {
         if (error) throw error;
-        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino all user values list' });
+        return res.send({ error: false, data: JSON.stringify(result), message: 'arduino all user values' });
     });
 });
 
@@ -137,7 +137,7 @@ app.get('/listArduino/:id', function (req, res) {
 
 //-------------------------------------------------------------------------------------------------------------------------------------
 // Add a new user from request BODY 
-app.post('/user', function (req, res) {
+app.post('/addUser', function (req, res) {
     let user = req.body;
 
     console.log(GetDateTime() + " New user: ", user);
@@ -153,16 +153,15 @@ app.post('/user', function (req, res) {
         "permissionLevel = " + user.PermissionLevel 
         , { user }, function (error, result) {
             if (error) throw error;
-            console.log("Number of rows affected: " + result.affectedRows);
-            console.log("Number of records affected with warning: " + result.warningCount);
-            console.log("Message from MySQL Server: " + result.message);
-            return res.send({ error: false, data: JSON.stringify(result), message: 'New user has been created.' });
+            console.log("Affected: " + result.affectedRows);
+            console.log("Affected with warning: " + result.warningCount);
+            console.log("Message: " + result.message);
+            return res.send({ error: false, data: JSON.stringify(result), message: 'New user created.' });
         });
-    //console.log("User created: \n", user);
 });
 
 //  Update user with id
-app.put('/user/:user_id', function (req, res) {
+app.put('/updateUser/:user_id', function (req, res) {
     let user = req.body;
     let user_id = req.params.user_id
 
@@ -182,15 +181,15 @@ app.put('/user/:user_id', function (req, res) {
         "WHERE id = ? "
         , [user_id], function (error, result) {
             if (error) throw error;
-            console.log("Number of rows affected: " + result.affectedRows);
-            console.log("Number of records affected with warning: " + result.warningCount);
-            console.log("Message from MySQL Server: " + result.message);
-            return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been updated.' });
+            console.log("Affected: " + result.affectedRows);
+            console.log("Affected with warning: " + result.warningCount);
+            console.log("Message: " + result.message);
+            return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' updated.' });
         });
 });
 
 //  Delete user
-app.delete('/user/:user_id', function (req, res) {
+app.delete('/deleteUser/:user_id', function (req, res) {
     let user_id = req.params.user_id;
 
     console.log(GetDateTime() + " User to delete: ", user_id);
@@ -200,15 +199,38 @@ app.delete('/user/:user_id', function (req, res) {
     }
     dbConn.query('DELETE FROM users WHERE id = ?', [user_id], function (error, result) {
         if (error) throw error;
-        console.log("Number of rows affected: " + result.affectedRows);
-        console.log("Number of records affected with warning: " + result.warningCount);
-        console.log("Message from MySQL Server: " + result.message);
-        return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' has been deleted.' });
+        console.log("Affected: " + result.affectedRows);
+        console.log("Affected with warning: " + result.warningCount);
+        console.log("Message: " + result.message);
+        return res.send({ error: false, data: JSON.stringify(result), message: 'user ' + user_id + ' deleted.' });
     });
 }); 
 
+// Add a new Arduino Parameter from request BODY 
+app.post('/addArduino', function (req, res) {
+    let arduino = req.body;
+
+    console.log(GetDateTime() + " New Arduino: ", arduino);
+
+    if (!arduino) {
+        return res.status(400).send({ error: true, message: 'Please provide new arduino parameter data' });
+    }
+    dbConn.query("INSERT INTO arduino SET " +
+        "userID = " + arduino.UserID + "," +
+        "valueName = '" + arduino.ValueName + "'," +
+        "valueInt = " + arduino.ValueInt + "," +
+        "valueString = '" + arduino.ValueString + "'"
+        , { arduino }, function (error, result) {
+            if (error) throw error;
+            console.log("Affected: " + result.affectedRows);
+            console.log("Affected with warning: " + result.warningCount);
+            console.log("Message: " + result.message);
+            return res.send({ error: false, data: JSON.stringify(result), message: 'New arduino parameter created.' });
+        });
+});
+
 //  Update arduino paramater
-app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
+app.put('/updateArduino/:arduinoRecordID', function (req, res) {
     let record = req.body;
     let recID = req.params.arduinoRecordID;
 
@@ -227,10 +249,10 @@ app.put('/arduinoParameter/:arduinoRecordID', function (req, res) {
         "WHERE id = ? "
         , [recID], function (error, result) {
             if (error) throw error;
-            console.log("Number of rows affected: " + result.affectedRows);
-            console.log("Number of records affected with warning: " + result.warningCount);
-            console.log("Message from MySQL Server: " + result.message);
-            return res.send({ error: false, data: JSON.stringify(result), message: 'arduino parameter ID: ' + recID + ' has been updated.' });
+            console.log("Affected: " + result.affectedRows);
+            console.log("Affected with warning: " + result.warningCount);
+            console.log("Message: " + result.message);
+            return res.send({ error: false, data: JSON.stringify(result), message: 'arduino ID: ' + recID + ' updated.' });
         });
 });
 
