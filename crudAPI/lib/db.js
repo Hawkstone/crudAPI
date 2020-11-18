@@ -1,19 +1,28 @@
-// return a dbConn oject connected to mySQL iot database
+// return a dbConn oject connected to mySQL database
 var mysql = require('mysql');
-var dbConn = mysql.createConnection({
+
+var dbConn = mysql.createPool({
+    connectionLimit: 5,
     host: 'localhost',
     user: 'root',
     password: 'redLion45',
     database: 'iot'
 });
 
-dbConn.connect(function (error) {
+//var dbConn = mysql.createConnection({
+//    host: 'localhost',
+//    user: 'root',
+//    password: 'redLion45',
+//    database: 'iot'
+//});
+dbConn.getConnection(function (error) {
     if (!!error) {
         console.log(error);
     } else {
         console.log(GetDateTime() + ' Database connected!');
     }
 });
+
 module.exports = dbConn; 
 
 function GetDateTime() {
@@ -35,4 +44,3 @@ function GetDateTime() {
 
     return year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
 }
-

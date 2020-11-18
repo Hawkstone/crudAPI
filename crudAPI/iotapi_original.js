@@ -14,12 +14,14 @@ app.get('/', function (req, res) {
 
 // set port
 app.listen(port, function () {
-    console.log('Node iotapi is listening on port ' + port);
+    console.log('Node iotapi is running on port ' + port);
 });
 module.exports = app;
 
 
 var dbConn = require('./lib/db');
+
+
 
 
 // send an SQL query and return the result
